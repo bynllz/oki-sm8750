@@ -510,14 +510,6 @@ jobs:
               echo "CONFIG_DEFAULT_TCP_CONG=cubic" >> ./common/arch/arm64/configs/gki_defconfig
             fi
           fi
-
-      - name: 添加 HymoFS
-        run: |
-          cd kernel_workspace/common
-          cp ${{ github.workspace }}/patch/hymofs_with_susfs.patch .
-          patch -p1 -F 3 < hymofs_with_susfs.patch
-          echo "CONFIG_HYMOFS=y" >> ./arch/arm64/configs/gki_defconfig
-          echo ">>> 修复编译错误..." 
           
       - name: 启用ADIOS IO调度器
         if: inputs.adios_enable
@@ -566,6 +558,11 @@ jobs:
           sed -i 's/hooks.o //g' "./selinux/Makefile"
           cat "./baseband-guard/sepatch.txt" >> "./selinux/Makefile"
 
+      - name: 添加 HymoFS
+        run: |
+          cd kernel_workspace/common
+          curl -LSs https://raw.githubusercontent.com/Anatdx/HymoFS/main/setup.sh | bash -s defconfig arch/arm64/configs/gki_defconfig
+          
       - name: 添加制作名称
         run: |
           cd kernel_workspace
